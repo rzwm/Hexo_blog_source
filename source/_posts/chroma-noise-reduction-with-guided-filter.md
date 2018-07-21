@@ -30,14 +30,12 @@ categories: 图像处理
 #include "opencv2/ximgproc.hpp"
 #include <iostream>
 
-int main()
+void chromaNoiseReduction(const cv::Mat& src, cv::Mat& dst, int radius = 30, double eps = 0.03 * 255 * 255)
 {
-	cv::Mat I = cv::imread("2.jpg");
-	if (I.empty())
-	{
-		std::cout << "Couldn't open file." << std::endl;
-		return -1;
-	}
+	CV_Assert(src.type() == CV_8UC3);
+	CV_Assert(src.cols % 2 == 0 && src.rows % 2 == 0);
+
+	const cv::Mat& I = src;
 
 	// step 1. convert I to YUV format
 	cv::Mat I_YUV;
@@ -45,7 +43,7 @@ int main()
 
 	// step 2. do guided filtering on I
 	cv::Mat I_gf;
-	cv::ximgproc::guidedFilter(I, I, I_gf, 30, 0.03 * 255 * 255);
+	cv::ximgproc::guidedFilter(I, I, I_gf, radius, eps);
 
 	// step 3. convert I_gf to YUV format
 	cv::Mat I_gf_YUV;
@@ -56,12 +54,25 @@ int main()
 	memcpy(I_Y_gf_UV.data, I_YUV.data, I.cols * I.rows);
 
 	// step 5. convert I_Y_gf_UV to BGR, which is the result
+	cv::cvtColor(I_Y_gf_UV, dst, cv::COLOR_YUV2BGR_I420);
+}
+
+int main()
+{
+	cv::Mat image = cv::imread("2.jpg");
+	if (image.empty())
+	{
+		std::cout << "Couldn't open file." << std::endl;
+		return -1;
+	}
+
 	cv::Mat result;
-	cv::cvtColor(I_Y_gf_UV, result, cv::COLOR_YUV2BGR_I420);
+	chromaNoiseReduction(image, result);
 
 	cv::imwrite("result.jpg", result);
 
 	return 0;
 }
+
 
 ```
