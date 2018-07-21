@@ -1,7 +1,7 @@
 ---
 title: 一个小技巧使OpenCL不影响渲染
 date: 2018-07-21 23:02:35
-tags: [OpenCL, GPU, render]
+tags: [OpenCL, GPU, render, trick]
 categories: OpenCL
 ---
 
