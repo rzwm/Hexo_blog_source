@@ -95,7 +95,7 @@ $W_R = 0.2126, W_G = 0.7152, W_B = 0.0722, U_{max} = 0.436, V_{max} = 0.615$
 
 # 公式生成器
 
-根据上述原理，我写了一个简单的公式生成器。Github地址：https://github.com/rzwm/YUVRGBFormulaGenerator。你可以下载此代码，然后生成自己想要的转换公式。
+根据上述原理，我写了一个简单的公式生成器。Github地址：[YUVRGBFormulaGenerator](https://github.com/rzwm/YUVRGBFormulaGenerator)。你可以下载此代码，然后生成自己想要的转换公式。
 
 # 具体转换公式
 
