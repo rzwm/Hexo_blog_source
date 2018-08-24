@@ -26,15 +26,23 @@ YUV信号一般是从RGB信号源采样而来的，所以首先有一个RGB转YU
 
 认识了所需要的5个常数之后，就可以定义RGB转YUV的公式，如下：
 
-$Y = W_RR + W_GG + W_BB$
-$U = U_{max} \frac{B - Y}{1 - W_B}$
-$V = V_{max}\frac{R - Y}{1 - W_R}$
+$$
+\begin{multline}
+\shoveleft Y = W_RR + W_GG + W_BB \\\\
+\shoveleft U = U_{max} \frac{B - Y}{1 - W_B} \\\\
+\shoveleft V = V_{max}\frac{R - Y}{1 - W_R} \\\\
+\end{multline}
+$$
 
 由此公式逆推，就可以得到YUV转RGB的公式：
 
-$R = Y + V\frac{1 - W_R}{V_{max}}$
-$G = Y - U\frac{W_B(1 - W_B)}{U_{max}W_G} - V\frac{W_R(1 - W_R)}{V_{max}W_G}$
-$B = Y + U\frac{1 - W_B}{U_{max}}$
+$$
+\begin{multline}
+\shoveleft R = Y + V\frac{1 - W_R}{V_{max}} \\\\
+\shoveleft G = Y - U\frac{W_B(1 - W_B)}{U_{max}W_G} - V\frac{W_R(1 - W_R)}{V_{max}W_G} \\\\
+\shoveleft B = Y + U\frac{1 - W_B}{U_{max}} \\\\
+\end{multline}
+$$
 
 这是YUV与RGB之间最基本最根源的转换公式，所以我称它为根转换公式。
 
@@ -44,7 +52,7 @@ $B = Y + U\frac{1 - W_B}{U_{max}}$
 
 若R，G，B的取值范围都是$[0, 1]$，则Y的取值范围为$[0, 1]$，U的取值范围为$[-U_{max}, U_{max}]$，V的取值范围为$[-V_{max}, V_{max}]$。
 
-而一般在图像处理中的R，G，B的取值范围为$[0, 255]$，则Y的取值范围为$[0, 255]$，U的取值范围为$[-255U_{max}, 255_{max}]$，V的取值范围为$[-255V_{max}, 255V_{max}]$。
+而一般在图像处理中的R，G，B的取值范围为$[0, 255]​$，则Y的取值范围为$[0, 255]​$，U的取值范围为$[-255U_{max}, 255_{max}]​$，V的取值范围为$[-255V_{max}, 255V_{max}]​$。
 
 可以看到，U和V的值可能为负值，不太符合我们的习惯。所以我们可能期望将其量化到某个正的范围，如$[0, 255]$。添加了量化操作的公式，我称之为量化转换公式。
 
@@ -56,20 +64,39 @@ $B = Y + U\frac{1 - W_B}{U_{max}}$
 
 ## Y -> [16, 235], U -> [16, 240], V -> [16, 240]
 
-$Y = (W_RR + W_GG + W_BB) \frac{235 - 16}{255} + 16 = (W_RR + W_GG + W_BB) \frac{219}{255} + 16$
-$U = U_{max} \frac{B - Y}{1 - W_B} \frac{240-16}{2 \cdot 255U_{max}} + 128 = \frac{B - Y}{1 - W_B} \frac{112}{255} + 128 $ //注意：此处的Y是量化前的Y
-$V = V_{max}\frac{R - Y}{1 - W_R} \frac{240-16}{2 \cdot 255V_{max}} + 128 = \frac{R - Y}{1 - W_R} \frac{112}{255} + 128$ //注意：此处的Y是量化前的Y
-$R = (Y - 16)\frac{255}{219} + (V - 128)\frac{255V_{max}}{112}\frac{1 - W_R}{V_{max}} = (Y - 16)\frac{255}{219} + (V - 128)\frac{255(1 - W_R)}{112}$
-$G = (Y - 16)\frac{255}{219} - (U - 128)\frac{255U_{max}}{112}\frac{W_B(1 - W_B)}{U_{max}W_G} - (V - 128)\frac{255V_{max}}{112}\frac{W_R(1 - W_R)}{V_{max}W_G} = (Y - 16)\frac{255}{219} - (U - 128)\frac{255}{112}\frac{W_B(1 - W_B)}{W_G} - (V - 128)\frac{255}{112}\frac{W_R(1 - W_R)}{W_G}$
-$B = (Y - 16)\frac{255}{219} + (U - 128)\frac{255U_{max}}{112}\frac{1 - W_B}{U_{max}}  = (Y - 16)\frac{255}{219} + (U - 128)\frac{255(1 - W_B)}{112}$
+$$
+\begin{align}
+Y &= (W_RR + W_GG + W_BB) \frac{235 - 16}{255} + 16 \\\\ 
+&= (W_RR + W_GG + W_BB) \frac{219}{255} + 16 \\\\
+U &= U_{max} \frac{B - Y}{1 - W_B} \frac{240-16}{2 \cdot 255U_{max}} + 128 \\\\
+&= \frac{B - Y}{1 - W_B} \frac{112}{255} + 128  //注意：此处的Y是量化前的Y \\\\
+V &= V_{max}\frac{R - Y}{1 - W_R} \frac{240-16}{2 \cdot 255V_{max}} + 128 \\\\
+&= \frac{R - Y}{1 - W_R} \frac{112}{255} + 128 //注意：此处的Y是量化前的Y \\\\
+R &= (Y - 16)\frac{255}{219} + (V - 128)\frac{255V_{max}}{112}\frac{1 - W_R}{V_{max}} \\\\
+&= (Y - 16)\frac{255}{219} + (V - 128)\frac{255(1 - W_R)}{112} \\\\
+G &= (Y - 16)\frac{255}{219} - (U - 128)\frac{255U_{max}}{112}\frac{W_B(1 - W_B)}{U_{max}W_G} - (V - 128)\frac{255V_{max}}{112}\frac{W_R(1 - W_R)}{V_{max}W_G} \\\\
+&= (Y - 16)\frac{255}{219} - (U - 128)\frac{255}{112}\frac{W_B(1 - W_B)}{W_G} - (V - 128)\frac{255}{112}\frac{W_R(1 - W_R)}{W_G} \\\\
+B &= (Y - 16)\frac{255}{219} + (U - 128)\frac{255U_{max}}{112}\frac{1 - W_B}{U_{max}} \\\\
+&= (Y - 16)\frac{255}{219} + (U - 128)\frac{255(1 - W_B)}{112} \\\\
+\end{align}
+$$
 
 ## Y -> [0, 255], U -> [0, 255], V -> [0, 255]
-$Y = W_RR + W_GG + W_BB$
-$U = U_{max} \frac{B - Y}{1 - W_B} \frac{255}{2 \cdot 255U_{max}} + 128 = \frac{B - Y}{2(1 - W_B)} + 128$ // 根据我自己的推算，此处的128应该为127.5，但是我看别人的都是128，不知道为什么。。。下同
-$V = V_{max}\frac{R - Y}{1 - W_R} \frac{255}{2 \cdot 255V_{max}} + 128 = \frac{R - Y}{2(1 - W_R)} + 128$
-$R = Y + 2(V - 128)V_{max}\frac{1 - W_R}{V_{max}} = Y + 2(V - 128)(1 - W_R)$
-$G = Y - 2(U - 128)U_{max}\frac{W_B(1 - W_B)}{U_{max}W_G} - 2(V - 128)V_{max}\frac{W_R(1 - W_R)}{V_{max}W_G} = Y - 2(U - 128)\frac{W_B(1 - W_B)}{W_G} - 2(V - 128)\frac{W_R(1 - W_R)}{W_G}$
-$B = Y + 2(U - 128)U_{max}\frac{1 - W_B}{U_{max}} = Y + 2(U - 128)(1 - W_B)$
+$$
+\begin{align}
+Y &= W_RR + W_GG + W_BB\\\\
+U &= U_{max} \frac{B - Y}{1 - W_B} \frac{255}{2 \cdot 255U_{max}} + 128 \\\\
+&= \frac{B - Y}{2(1 - W_B)} + 128 // 此处推算应为127.5，但别人都是128，不知为何。。。下同 \\\\
+V &= V_{max}\frac{R - Y}{1 - W_R} \frac{255}{2 \cdot 255V_{max}} + 128 \\\\
+&= \frac{R - Y}{2(1 - W_R)} + 128 \\\\
+R &= Y + 2(V - 128)V_{max}\frac{1 - W_R}{V_{max}} \\\\
+&= Y + 2(V - 128)(1 - W_R) \\\\
+G &= Y - 2(U - 128)U_{max}\frac{W_B(1 - W_B)}{U_{max}W_G} - 2(V - 128)V_{max}\frac{W_R(1 - W_R)}{V_{max}W_G} \\\\
+&= Y - 2(U - 128)\frac{W_B(1 - W_B)}{W_G} - 2(V - 128)\frac{W_R(1 - W_R)}{W_G} \\\\
+B &= Y + 2(U - 128)U_{max}\frac{1 - W_B}{U_{max}} \\\\
+&= Y + 2(U - 128)(1 - W_B) \\\\
+\end{align}
+$$
 
 # BT.601和BT.709
 
@@ -79,11 +106,27 @@ $B = Y + 2(U - 128)U_{max}\frac{1 - W_B}{U_{max}} = Y + 2(U - 128)(1 - W_B)$
 
 BT.601的推荐值是：
 
-$W_R = 0.299, W_G = 0.587, W_B = 0.114, U_{max} = 0.436, V_{max} = 0.615$
+$$
+\begin{multline}
+\shoveleft W_R = 0.299 \\\\
+\shoveleft W_G = 0.587 \\\\
+\shoveleft W_B = 0.114 \\\\
+\shoveleft U_{max} = 0.436 \\\\
+\shoveleft V_{max} = 0.615 \\\\
+\end{multline}
+$$
 
 BT.709的推荐值是：
 
-$W_R = 0.2126, W_G = 0.7152, W_B = 0.0722, U_{max} = 0.436, V_{max} = 0.615$
+$$
+\begin{multline}
+\shoveleft W_R = 0.2126 \\\\
+\shoveleft W_G = 0.7152 \\\\
+\shoveleft W_B = 0.0722 \\\\
+\shoveleft U_{max} = 0.436 \\\\
+\shoveleft V_{max} = 0.615 \\\\
+\end{multline}
+$$
 
 将这五个值代入上述公式，就可以得到具体的转换公式了。
 
@@ -105,63 +148,104 @@ $W_R = 0.2126, W_G = 0.7152, W_B = 0.0722, U_{max} = 0.436, V_{max} = 0.615$
 
 ### 常数
 
-$W_R = 0.299, W_G = 0.587, W_B = 0.114, U_{max} = 0.436, V_{max} = 0.615$
+$$
+\begin{multline}
+\shoveleft W_R = 0.299 \\\\
+\shoveleft W_G = 0.587 \\\\
+\shoveleft W_B = 0.114 \\\\
+\shoveleft U_{max} = 0.436 \\\\
+\shoveleft V_{max} = 0.615 \\\\
+\end{multline}
+$$
 
 ### 根公式
-$Y = 0.299R + 0.587G + 0.114B$
-$U = -0.14714R - 0.28886G + 0.436B$
-$V = 0.615R - 0.51499G - 0.10001B$
-$R = Y + 1.13984V$
-$B = Y - 0.39465U - 0.58060V$
-$B = Y + 2.03211U$
+$$
+\begin{multline}
+\shoveleft Y = 0.299R + 0.587G + 0.114B \\\\
+\shoveleft U = -0.14714R - 0.28886G + 0.436B \\\\
+\shoveleft V = 0.615R - 0.51499G - 0.10001B \\\\
+\shoveleft R = Y + 1.13984V \\\\
+\shoveleft B = Y - 0.39465U - 0.58060V \\\\
+\shoveleft B = Y + 2.03211U \\\\
+\end{multline}
+$$
 
 ### Y -> [16, 235], U -> [16, 240], V -> [16, 240]
 
-$Y = 0.25679R + 0.50413G + 0.09791B + 16$
-$U = -0.14822R - 0.29099G + 0.43922B + 128$
-$V = 0.43922R - 0.36779G - 0.07143B + 128$
-$R = 1.16438(Y - 16) + 1.59603(V - 128)$
-$G = 1.16438(Y - 16) - 0.39176(U - 128) - 0.81297(V - 128)$
-$B = 1.16438(Y - 16) + 2.01723(U - 128)$
+$$
+\begin{multline}
+\shoveleft Y = 0.25679R + 0.50413G + 0.09791B + 16 \\\\
+\shoveleft U = -0.14822R - 0.29099G + 0.43922B + 128 \\\\
+\shoveleft V = 0.43922R - 0.36779G - 0.07143B + 128 \\\\
+\shoveleft R = 1.16438(Y - 16) + 1.59603(V - 128) \\\\
+\shoveleft G = 1.16438(Y - 16) - 0.39176(U - 128) - 0.81297(V - 128) \\\\
+\shoveleft B = 1.16438(Y - 16) + 2.01723(U - 128) \\\\
+\end{multline}
+$$
 
 ### Y -> [0, 255], U -> [0, 255], V -> [0, 255]
 
-$Y = 0.299R + 0.587G + 0.114B$
-$U = -0.16874R - 0.33126G + 0.5B + 128$
-$V = 0.5R - 0.41869G - 0.08131B + 128$
-$R = Y + 1.402(V - 128)$
-$G = Y - 0.34414(U - 128) - 0.71414(V - 128)$
-$B = Y + 1.772(U - 128)$
+$$
+\begin{multline}
+\shoveleft Y = 0.299R + 0.587G + 0.114B \\\\
+\shoveleft U = -0.16874R - 0.33126G + 0.5B + 128 \\\\
+\shoveleft V = 0.5R - 0.41869G - 0.08131B + 128 \\\\
+\shoveleft R = Y + 1.402(V - 128) \\\\
+\shoveleft G = Y - 0.34414(U - 128) - 0.71414(V - 128) \\\\
+\shoveleft B = Y + 1.772(U - 128) \\\\
+\end{multline}
+$$
 
 ## BT.709
 
 ### 常数
 
-$W_R = 0.2126, W_G = 0.7152, W_B = 0.0722, U_{max} = 0.436, V_{max} = 0.615$
+$$
+\begin{multline}
+\shoveleft W_R = 0.2126 \\\\
+\shoveleft W_G = 0.7152 \\\\
+\shoveleft W_B = 0.0722 \\\\
+\shoveleft U_{max} = 0.436 \\\\
+\shoveleft V_{max} = 0.615 \\\\
+\end{multline}
+$$
 
 ### 根公式
 
-$Y = 0.2126R + 0.7152G + 0.0722B$
-$U = -0.09991R - 0.33609G + 0.436B$
-$V = 0.615R - 0.55861G - 0.05639B$
-$R = Y + 1.28033V$
-$G = Y - 0.21482U - 0.38059V$
-$B = Y + 2.12798U$
+$$
+\begin{multline}
+\shoveleft Y = 0.2126R + 0.7152G + 0.0722B \\\\
+\shoveleft U = -0.09991R - 0.33609G + 0.436B \\\\
+\shoveleft V = 0.615R - 0.55861G - 0.05639B \\\\
+\shoveleft R = Y + 1.28033V \\\\
+\shoveleft G = Y - 0.21482U - 0.38059V \\\\
+\shoveleft B = Y + 2.12798U \\\\
+\end{multline}
+$$
 
 ### Y -> [16, 235], U -> [16, 240], V -> [16, 240]
 
-$Y = 0.18259R + 0.61423G + 0.06201B + 16$
-$U = -0.10064R - 0.33857G + 0.43922B + 128$
-$V = 0.43922R - 0.39894G - 0.04027B + 128$
-$R = 1.16438(Y - 16) + 1.79274(V - 128)$
-$G = 1.16438(Y - 16) - 0.21325(U - 128) - 0.53291(V - 128)$
-$B = 1.16438(Y - 16) + 2.11240(U - 128)$
+$$
+\begin{multline}
+\shoveleft Y = 0.18259R + 0.61423G + 0.06201B + 16 \\\\
+\shoveleft U = -0.10064R - 0.33857G + 0.43922B + 128 \\\\
+\shoveleft V = 0.43922R - 0.39894G - 0.04027B + 128 \\\\
+\shoveleft R = 1.16438(Y - 16) + 1.79274(V - 128) \\\\
+\shoveleft G = 1.16438(Y - 16) - 0.21325(U - 128) - 0.53291(V - 128) \\\\
+\shoveleft B = 1.16438(Y - 16) + 2.11240(U - 128) \\\\
+\end{multline}
+$$
 
 ### Y -> [0, 255], U -> [0, 255], V -> [0, 255]
 
-$Y = 0.2126R + 0.7152G + 0.0722B$
-$U = -0.11457R - 0.38543G + 0.5B + 128$
-$V = 0.5R - 0.45415G - 0.04585B + 128$
-$R = Y + 1.5748(V - 128)$
-$G = Y - 0.18732(U - 128) - 0.46812(V - 128)$
-$B = Y + 1.8556(U - 128)$
+$$
+\begin{multline}
+\shoveleft Y = 0.2126R + 0.7152G + 0.0722B \\\\
+\shoveleft U = -0.11457R - 0.38543G + 0.5B + 128 \\\\
+\shoveleft V = 0.5R - 0.45415G - 0.04585B + 128 \\\\
+\shoveleft R = Y + 1.5748(V - 128) \\\\
+\shoveleft G = Y - 0.18732(U - 128) - 0.46812(V - 128) \\\\
+\shoveleft B = Y + 1.8556(U - 128) \\\\
+\end{multline}
+$$
+
